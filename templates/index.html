@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Drop Monitor</title>
+</head>
+<body>
+    <h1>Largest File</h1>
+
+    <p><b>Filename:</b> <span id="filename">--</span></p>
+    <p><b>Size:</b> <span id="size">--</span></p>
+    <p><b>Updated:</b> <span id="timestamp">--</span></p>
+
+    <script>
+        // Convert bytes → KB, MB, GB automatically
+        function formatBytes(bytes) {
+            if (!bytes || bytes === 0) return "0 B";
+
+            const sizes = ["B", "KB", "MB", "GB", "TB"];
+            let i = Math.floor(Math.log(bytes) / Math.log(1024));
+            let value = (bytes / Math.pow(1024, i)).toFixed(2);
+
+            return `${value} ${sizes[i]}`;
+        }
+
+        async function refresh() {
+            const r = await fetch("/latest");
+            const j = await r.json();
+
+            document.getElementById("filename").textContent = j.filename || "--";
+            document.getElementById("size").textContent =
+                j.size_bytes ? formatBytes(j.size_bytes) : "--";
+            document.getElementById("timestamp").textContent = j.timestamp_iso || "--";
+        }
+
+        setInterval(refresh, 2000);
+        refresh();
+    </script>
+</body>
+</html>
